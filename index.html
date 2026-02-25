@@ -35,6 +35,7 @@
             border-radius: 0.5rem;
         }
     </style>
+    <script src="/tracker.js"></script>
 </head>
 <body>
     <div id="root"></div>
@@ -650,12 +651,27 @@
         const App = () => {
             const [activeScreen, setActiveScreen] = useLocalStorage('activeScreen', 'home');
 
+            const handleNavigate = (screenId) => {
+                setActiveScreen(screenId);
+                const eventMap = {
+                    'risk': 'risco',
+                    'costs': 'custos',
+                    'flow': 'fluxo',
+                    'communication': 'comunicacao',
+                    'states': 'estados',
+                    'checklist': 'checklist'
+                };
+                if (eventMap[screenId] && typeof window.trackEvent === 'function') {
+                    window.trackEvent(eventMap[screenId]);
+                }
+            };
+
             useEffect(() => {
                 window.scrollTo(0, 0);
             }, [activeScreen]);
 
             const screens = {
-                home: <HomeScreen setActiveScreen={setActiveScreen} />,
+                home: <HomeScreen setActiveScreen={handleNavigate} />,
                 risk: <RiskScreen />,
                 costs: <CostsScreen />,
                 flow: <FlowScreen />,
@@ -682,7 +698,7 @@
                         {navItems.map(item => (
                             <button 
                                 key={item.id} 
-                                onClick={() => setActiveScreen(item.id)} 
+                                onClick={() => handleNavigate(item.id)} 
                                 className={`flex-1 flex flex-col items-center justify-center p-2 text-xs transition-colors ${activeScreen === item.id ? 'text-blue-700 bg-gray-100' : 'text-gray-500'}`}>
                                 <span className="text-xl">{item.icon}</span>
                                 <span>{item.label}</span>
