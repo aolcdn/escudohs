@@ -34,6 +34,13 @@
             border: 1px solid var(--border);
             border-radius: 0.5rem;
         }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
     <script src="tracker.js"></script>
 </head>
@@ -52,12 +59,12 @@
 
         // --- DATA --- //
         const statesData = {
-          PR: { name: "Paraná", emoji: "🌲", firstInstanceTendency: "alta", secondInstanceTendency: "confirmatória", secondInstanceRisk: "alto", multaECA_min: 3, multaECA_max: 20, avgTime1st: 18, avgTime2nd: 14, notes: "O Paraná apresenta, entre os estados com mais casos documentados, uma das tendências mais consistentes de confirmação da 1ª instância pelo TJ. Famílias neste estado encontram menor espaço de reversão em recurso. A estratégia de prevenção e documentação é especialmente relevante neste contexto.", sources: "Baseado em análise de decisões públicas do TJ-PR (2021–2025)" },
-          SP: { name: "São Paulo", emoji: "🏙️", firstInstanceTendency: "moderada-alta", secondInstanceTendency: "variável por comarca", secondInstanceRisk: "médio", multaECA_min: 3, multaECA_max: 20, avgTime1st: 20, avgTime2nd: 16, notes: "São Paulo apresenta grande variabilidade entre comarcas. A capital tende a maior rigor do que o interior. O comportamento do MP-SP também varia por região.", sources: "Baseado em análise de decisões públicas do TJ-SP (2021–2025)" },
+          PR: { name: "Paraná", emoji: "🌲", firstInstanceTendency: "mais restritiva", secondInstanceTendency: "confirmatória", secondInstanceRisk: "alto", multaECA_min: 3, multaECA_max: 20, avgTime1st: 18, avgTime2nd: 14, notes: "Observa-se postura mais restritiva. Famílias neste estado encontram menor espaço de reversão em recurso. A estratégia de organização documental é especialmente relevante neste contexto.", sources: "Baseado em análise de decisões públicas do TJ-PR (2021–2025)" },
+          SP: { name: "São Paulo", emoji: "🏙️", firstInstanceTendency: "atenção moderada", secondInstanceTendency: "variável por comarca", secondInstanceRisk: "médio", multaECA_min: 3, multaECA_max: 20, avgTime1st: 20, avgTime2nd: 16, notes: "São Paulo apresenta grande variabilidade entre comarcas. A capital tende a maior rigor do que o interior. O comportamento do MP-SP também varia por região.", sources: "Baseado em análise de decisões públicas do TJ-SP (2021–2025)" },
           MG: { name: "Minas Gerais", emoji: "⛰️", firstInstanceTendency: "moderada", secondInstanceTendency: "tendência confirmatória com redução de multas em alguns casos", secondInstanceRisk: "médio", multaECA_min: 3, multaECA_max: 15, avgTime1st: 22, avgTime2nd: 18, notes: "MG apresenta comportamento mais moderado em comparação com PR e RJ. Há relatos de arquivamento pelo MP-MG após apresentação de documentação educacional.", sources: "Baseado em análise de decisões públicas do TJ-MG (2021–2025)" },
           SC: { name: "Santa Catarina", emoji: "🌊", firstInstanceTendency: "moderada", secondInstanceTendency: "tendência confirmatória com variação", secondInstanceRisk: "médio", multaECA_min: 3, multaECA_max: 15, avgTime1st: 16, avgTime2nd: 12, notes: "SC tem histórico de casos com desfechos variados. O caso Regiane (SC) é referência nacional de processo de longa duração.", sources: "Baseado em análise de decisões públicas do TJ-SC (2021–2025)" },
           RS: { name: "Rio Grande do Sul", emoji: "🐴", firstInstanceTendency: "moderada", secondInstanceTendency: "variável — algumas decisões favoráveis a famílias documentadas", secondInstanceRisk: "médio", multaECA_min: 3, multaECA_max: 15, avgTime1st: 20, avgTime2nd: 15, notes: "RS apresenta histórico de decisões mais equilibradas. O MP-RS tende a maior cautela antes de abertura de ação formal.", sources: "Baseado em análise de decisões públicas do TJ-RS (2021–2025)" },
-          RJ: { name: "Rio de Janeiro", emoji: "🏖️", firstInstanceTendency: "alta", secondInstanceTendency: "confirmatória com variabilidade por comarca", secondInstanceRisk: "alto", multaECA_min: 3, multaECA_max: 20, avgTime1st: 24, avgTime2nd: 20, notes: "RJ apresenta alto risco, especialmente na capital. Processos tendem a ser mais longos e multas mais elevadas.", sources: "Baseado em análise de decisões públicas do TJ-RJ (2021–2025)" },
+          RJ: { name: "Rio de Janeiro", emoji: "🏖️", firstInstanceTendency: "mais restritiva", secondInstanceTendency: "confirmatória com variabilidade por comarca", secondInstanceRisk: "alto", multaECA_min: 3, multaECA_max: 20, avgTime1st: 24, avgTime2nd: 20, notes: "RJ apresenta postura mais restritiva, especialmente na capital. Processos tendem a ser mais longos e multas mais elevadas.", sources: "Baseado em análise de decisões públicas do TJ-RJ (2021–2025)" },
           DF: { name: "Distrito Federal", emoji: "🏛️", firstInstanceTendency: "moderada", secondInstanceTendency: "equilibrado — há precedentes favoráveis a famílias", secondInstanceRisk: "médio-baixo", multaECA_min: 3, multaECA_max: 10, avgTime1st: 14, avgTime2nd: 10, notes: "O DF apresenta ambiente mais favorável ao debate constitucional sobre o tema. Acesso a advogados especializados é mais amplo.", sources: "Baseado em análise de decisões públicas do TJDFT (2021–2025)" },
           Outro: { name: "Outro estado", emoji: "📍", firstInstanceTendency: "indeterminada", secondInstanceTendency: "dados insuficientes", secondInstanceRisk: "indeterminado", multaECA_min: 3, multaECA_max: 20, avgTime1st: 18, avgTime2nd: 14, notes: "Para estados com dados insuficientes, a consulta a advogado local especializado em direito de família é especialmente relevante.", sources: "Estimativa baseada em médias nacionais" }
         };
@@ -76,8 +83,8 @@
         ];
 
         const processFlow = [
-          { step: 1, icon: "⚠️", location: "Denúncia", title: "Como tudo começa (A Denúncia)", description: "Alguém avisa as autoridades. Pode ser anônimo (pelo Disque 100) ou alguém conhecido. A maioria das denúncias vem de parentes brigados, ex-parceiros ou vizinhos fofoqueiros.", infoBox: "Calma. Uma denúncia não significa que você perdeu. É só o começo de uma verificação." },
-          { step: 2, icon: "🏛️", location: "Conselho Tutelar", title: "A visita do Conselho Tutelar", description: "Eles recebem a denúncia e vão checar. Podem mandar uma carta antes ou bater direto na sua porta. O conselheiro pode só olhar, pedir para você matricular a criança, ou passar o caso para frente (para o promotor).", infoBox: "Se eles baterem na sua porta: seja educada, mostre os cadernos e fotos das crianças estudando. Se a coisa ficar séria, chame um advogado.", neutralNote: { title: "Sobre mudar de cidade", description: "O processo corre na cidade onde você mora quando a denúncia é feita. Se você se mudar no meio da confusão, precisa avisar o juiz. Fale com um advogado antes de fazer as malas.", disclaimer: "Isso é só para você entender como funciona, não é um conselho do que fazer." } },
+          { step: 1, icon: "⚠️", location: "Denúncia", title: "Como tudo começa (A Denúncia)", description: "Alguém avisa as autoridades. Pode ser anônimo (pelo Disque 100) ou alguém conhecido. A maioria das denúncias vem de parentes brigados, ex-parceiros ou vizinhos fofoqueiros. Quem denunciou muda o caminho: denúncias informais (vizinhos) costumam começar no Conselho Tutelar. Denúncias formais (Disque 100) tendem a formalizar mais rápido no Ministério Público.", infoBox: "Calma. Uma denúncia não significa que você perdeu. É só o começo de uma verificação." },
+          { step: 2, icon: "🏛️", location: "Conselho Tutelar", title: "A visita do Conselho Tutelar", description: "Eles recebem a denúncia e vão checar. Podem mandar uma carta antes ou bater direto na sua porta. O conselheiro pode só olhar, pedir para você matricular a criança, ou passar o caso para frente (para o promotor).", infoBox: "Se eles baterem na sua porta: seja educada, mostre os cadernos e fotos das crianças estudando. Se a coisa ficar séria, chame um advogado.", neutralNote: { title: "Sobre mudar de cidade", description: "A competência territorial é determinada pela residência. Mudanças de domicílio devem ser analisadas com orientação jurídica individual.", disclaimer: "Esta informação é meramente descritiva do funcionamento do sistema." } },
           { step: 3, icon: "⚖️", location: "Promotor (Ministério Público)", title: "O Promotor de Justiça", description: "O Conselho Tutelar passa o caso para o promotor. Ele pode arquivar (encerrar o assunto), pedir para você assinar um acordo, ou abrir um processo com o juiz. Se receber carta deles, não ignore!", infoBox: "Se chegar carta do promotor: procure um advogado na mesma hora. Os prazos são curtos." },
           { step: 4, icon: "🔨", location: "Juiz da Cidade", title: "O Processo com o Juiz (1ª Instância)", description: "Aqui o caso vira um processo de verdade. O juiz vai avaliar. O mais comum é aplicarem uma multa em dinheiro (de 3 a 20 salários mínimos) por a criança estar fora da escola. É muito raro falarem em 'abandono intelectual' se você provar que ensina em casa.", legalRef: "Eles costumam cobrar multa baseada no Artigo 249 do ECA.", infoBox: "Ter pastas com as atividades e fotos das crianças salva vidas nessa hora." },
           { step: 5, icon: "📋", location: "Tribunal do Estado", title: "Recorrer (2ª Instância)", description: "Se o juiz da cidade der a multa, você pode recorrer para os juízes do Estado (Tribunal). Mas atenção: na maioria dos estados, eles concordam com o primeiro juiz e mantêm a multa. Recorrer custa mais dinheiro com advogado e demora mais.", infoBox: "Pense bem se vale a pena gastar mais dinheiro recorrendo. Use a aba 'Custos' para simular." },
@@ -169,7 +176,12 @@
                 
                 <div className="bg-green-100 border-2 border-green-500 text-green-900 p-5 rounded-xl mb-6 shadow-sm text-center">
                     <h3 className="font-bold text-lg mb-2">A Regra de Ouro 🌟</h3>
-                    <p className="text-sm">O melhor cenário de todos é <strong>sempre evitar que a denúncia aconteça</strong>. A discrição, o cuidado com quem você fala e a organização são os seus maiores escudos.</p>
+                    <p className="text-sm">O melhor cenário de todos é <strong>reduzir a exposição desnecessária</strong>. A discrição, o cuidado com quem você fala e a organização são os seus maiores escudos.</p>
+                </div>
+
+                <div className="bg-yellow-100 border-2 border-yellow-400 text-yellow-900 p-5 rounded-xl mb-6 shadow-sm text-center">
+                    <h3 className="font-bold text-lg mb-2">Se algo já aconteceu, comece por aqui:</h3>
+                    <button onClick={() => setActiveScreen('crise')} className="w-full bg-yellow-500 hover:bg-yellow-600 text-yellow-900 font-bold py-3 px-4 rounded-lg text-lg transition-colors shadow-md">🚨 Recebi contato do Conselho</button>
                 </div>
 
                 <div className="bg-blue-50 border border-blue-200 text-blue-800 text-sm p-4 rounded-lg mb-6">
@@ -235,6 +247,7 @@
             }, [riskScore]);
             
             const selectedState = answers[1];
+            const accumulatedConflicts = [answers[4], answers[5], answers[6], answers[10]].filter(a => a === 'yes').length;
 
             return (
                 <div className="p-4">
@@ -271,6 +284,13 @@
                         <p className="text-center text-sm mt-2 text-gray-700">{riskProfile.text}</p>
                     </div>
                     
+                    {accumulatedConflicts >= 2 && (
+                        <div className="mt-4 bg-red-100 border border-red-400 text-red-800 p-4 rounded-lg shadow-sm">
+                            <p className="font-bold">⚠️ Atenção: Efeito Acumulado</p>
+                            <p className="text-sm mt-1">Conflitos simultâneos (como brigas familiares somadas a visitas do Conselho) aumentam significativamente a exposição institucional.</p>
+                        </div>
+                    )}
+
                     {selectedState && statesData[selectedState] && (
                         <div className="mt-4 bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                             <h4 className="font-bold text-blue-800 mb-2">Nota sobre {statesData[selectedState].name}</h4>
@@ -398,6 +418,17 @@
                                 <p className="text-xs text-secondary mt-3 italic">{c.obs}</p>
                             </div>
                         ))}
+                    </div>
+
+                    <div className="bg-gray-100 border-l-4 border-gray-500 p-4 rounded-r-lg mb-6">
+                        <h3 className="font-bold text-lg text-gray-800">Caminho Alternativo: Encerramento do Conflito</h3>
+                        <p className="text-sm text-gray-700 mt-2">Algumas famílias optam por realizar a matrícula escolar para encerrar a disputa. Quando isso acontece:</p>
+                        <ul className="list-disc pl-5 mt-2 text-sm text-gray-700 space-y-1">
+                            <li>O processo judicial tende a perder o objeto (motivo de existir).</li>
+                            <li>A multa pode ser reduzida ou totalmente cancelada pelo juiz.</li>
+                            <li>O conflito institucional diminui imediatamente.</li>
+                        </ul>
+                        <p className="text-xs text-gray-500 mt-3 italic">Esta é uma constatação de como o sistema funciona, não uma recomendação do que você deve fazer. Cada família deve avaliar seu limite financeiro e emocional.</p>
                     </div>
                     
                     <div className="bg-white border-gray-200 border rounded-lg p-4">
@@ -648,6 +679,94 @@
             );
         };
 
+        const CriseScreen = ({ setActiveScreen }) => {
+            const [contactType, setContactType] = useState(null);
+
+            return (
+                <div className="p-4">
+                    <div className="bg-yellow-100 border-2 border-yellow-400 text-yellow-900 p-5 rounded-xl mb-6 shadow-sm text-center">
+                        <h2 className="text-2xl font-bold mb-2">Você recebeu contato?</h2>
+                        <p className="text-lg font-semibold mb-2">Respire. Isso não é condenação.</p>
+                        <p className="text-sm">A maioria dos casos começa com uma conversa. Agora o mais importante é agir com organização, não com desespero.</p>
+                    </div>
+
+                    <h3 className="font-bold text-gray-800 mb-3">Qual foi o tipo de contato?</h3>
+                    <div className="space-y-3 mb-8">
+                        <button onClick={() => setContactType('ct')} className={`w-full text-left p-4 rounded-lg border transition-colors ${contactType === 'ct' ? 'bg-yellow-500 border-yellow-600 text-yellow-900 font-bold' : 'bg-white border-gray-300 hover:bg-gray-50'}`}>🏛️ Visita ou carta do Conselho Tutelar</button>
+                        <button onClick={() => setContactType('mp')} className={`w-full text-left p-4 rounded-lg border transition-colors ${contactType === 'mp' ? 'bg-yellow-500 border-yellow-600 text-yellow-900 font-bold' : 'bg-white border-gray-300 hover:bg-gray-50'}`}>⚖️ Notificação do Ministério Público (Promotor)</button>
+                        <button onClick={() => setContactType('juiz')} className={`w-full text-left p-4 rounded-lg border transition-colors ${contactType === 'juiz' ? 'bg-yellow-500 border-yellow-600 text-yellow-900 font-bold' : 'bg-white border-gray-300 hover:bg-gray-50'}`}>🔨 Já virou processo no Juiz</button>
+                    </div>
+
+                    {contactType === 'ct' && (
+                        <div className="bg-white border border-gray-200 rounded-lg p-5 mb-6 shadow-sm">
+                            <h4 className="font-bold text-lg text-gray-800 mb-3">O que fazer agora:</h4>
+                            <ul className="space-y-2 text-sm text-gray-700">
+                                <li className="flex items-start"><span className="mr-2">✅</span> Não ignore. Atender é melhor do que fugir.</li>
+                                <li className="flex items-start"><span className="mr-2">✅</span> Peça a identificação de quem está falando com você.</li>
+                                <li className="flex items-start"><span className="mr-2">✅</span> Anote a data e o horário do contato.</li>
+                                <li className="flex items-start"><span className="mr-2">✅</span> Mostre seus registros organizados (cadernos, fotos). Mostre organização, não confronto.</li>
+                                <li className="flex items-start"><span className="mr-2">✅</span> Depois da visita, escreva num caderno um resumo de tudo o que foi falado.</li>
+                            </ul>
+                            <div className="mt-4 bg-blue-50 text-blue-800 p-3 rounded text-sm">
+                                <strong>Nota:</strong> Muitos casos são encerrados nesta fase quando a família demonstra ter uma rotina educacional organizada.
+                            </div>
+                        </div>
+                    )}
+
+                    {contactType === 'mp' && (
+                        <div className="bg-white border border-gray-200 rounded-lg p-5 mb-6 shadow-sm">
+                            <h4 className="font-bold text-lg text-gray-800 mb-3">O que fazer agora:</h4>
+                            <ul className="space-y-2 text-sm text-gray-700">
+                                <li className="flex items-start"><span className="mr-2">✅</span> Veja qual é o prazo para resposta na carta.</li>
+                                <li className="flex items-start"><span className="mr-2">✅</span> Responda sempre por escrito (com protocolo ou e-mail com confirmação). Não resolva só de boca.</li>
+                                <li className="flex items-start"><span className="mr-2">✅</span> Organize todos os seus documentos e portfólio.</li>
+                                <li className="flex items-start"><span className="mr-2">✅</span> Procure orientação jurídica imediatamente.</li>
+                            </ul>
+                            <div className="mt-4 bg-blue-50 text-blue-800 p-3 rounded text-sm">
+                                <strong>Nota:</strong> O promotor pode decidir arquivar o caso antes mesmo de virar um processo judicial, dependendo das provas apresentadas.
+                            </div>
+                        </div>
+                    )}
+
+                    {contactType === 'juiz' && (
+                        <div className="bg-white border border-gray-200 rounded-lg p-5 mb-6 shadow-sm">
+                            <h4 className="font-bold text-lg text-gray-800 mb-3">O que fazer agora:</h4>
+                            <ul className="space-y-2 text-sm text-gray-700">
+                                <li className="flex items-start"><span className="mr-2">✅</span> Procure um advogado com urgência.</li>
+                                <li className="flex items-start"><span className="mr-2">✅</span> Não perca nenhum prazo estabelecido pelo juiz.</li>
+                                <li className="flex items-start"><span className="mr-2">✅</span> Entregue ao seu advogado o portfólio educacional completo.</li>
+                                <li className="flex items-start"><span className="mr-2">✅</span> Evite comentar sobre o processo publicamente ou nas redes sociais.</li>
+                            </ul>
+                            <div className="mt-4 bg-blue-50 text-blue-800 p-3 rounded text-sm">
+                                <strong>Nota importante:</strong> Na maioria absoluta dos casos de ensino domiciliar, o enquadramento é apenas de multa (ECA). Prisão ou perda de guarda são extremamente raras e ligadas a outros crimes graves, não apenas ao ensino em casa.
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="bg-gray-100 border border-gray-300 rounded-lg p-5 mb-6">
+                        <h4 className="font-bold text-lg text-gray-800 mb-2">Existem caminhos diferentes</h4>
+                        <p className="text-sm text-gray-700 mb-4">Algumas famílias decidem se defender até o fim. Outras optam por fazer a matrícula escolar para encerrar o conflito rapidamente. Cada escolha tem seu custo financeiro e emocional.</p>
+                        <div className="flex space-x-3">
+                            <button onClick={() => setActiveScreen('costs')} className="flex-1 bg-white border border-gray-300 text-gray-800 py-2 rounded shadow-sm text-sm font-semibold hover:bg-gray-50">💰 Ver Simulador</button>
+                            <button onClick={() => setActiveScreen('checklist')} className="flex-1 bg-white border border-gray-300 text-gray-800 py-2 rounded shadow-sm text-sm font-semibold hover:bg-gray-50">📋 Ver Checklist</button>
+                        </div>
+                    </div>
+
+                    <div className="bg-blue-900 text-white rounded-lg p-5 mb-6">
+                        <h4 className="font-bold text-lg mb-3">Evite 3 erros comuns:</h4>
+                        <ol className="list-decimal pl-5 space-y-2 text-sm mb-4">
+                            <li><strong>Agir no impulso:</strong> O medo faz a gente tomar decisões ruins. Ganhe tempo.</li>
+                            <li><strong>Confrontar autoridades:</strong> Bater boca com conselheiro não ajuda sua defesa.</li>
+                            <li><strong>Ficar paralisada:</strong> Não fazer nada e perder prazos é o pior cenário.</li>
+                        </ol>
+                        <p className="text-sm font-semibold text-blue-200 border-t border-blue-700 pt-3">Resolver uma etapa de cada vez costuma funcionar muito melhor do que tentar resolver tudo de uma vez.</p>
+                    </div>
+
+                    <Disclaimer />
+                </div>
+            );
+        };
+
         const App = () => {
             const [activeScreen, setActiveScreen] = useLocalStorage('activeScreen', 'home');
 
@@ -657,6 +776,7 @@
                     'risk': 'risco',
                     'costs': 'custos',
                     'flow': 'fluxo',
+                    'crise': 'crise',
                     'communication': 'comunicacao',
                     'states': 'estados',
                     'checklist': 'checklist'
@@ -675,6 +795,7 @@
                 risk: <RiskScreen />,
                 costs: <CostsScreen />,
                 flow: <FlowScreen />,
+                crise: <CriseScreen setActiveScreen={handleNavigate} />,
                 communication: <CommunicationScreen />,
                 states: <StatesScreen />,
                 checklist: <ChecklistScreen />
@@ -685,8 +806,10 @@
                 { id: 'risk', icon: '🛡️', label: 'Risco' },
                 { id: 'costs', icon: '💰', label: 'Custos' },
                 { id: 'flow', icon: '📊', label: 'Fluxo' },
+                { id: 'crise', icon: '🚨', label: 'Crise' },
                 { id: 'communication', icon: '💬', label: 'Comunicação' },
                 { id: 'states', icon: '🗺️', label: 'Estados' },
+                { id: 'checklist', icon: '📋', label: 'Checklist' }
             ];
 
             return (
@@ -694,14 +817,14 @@
                     <div className="max-w-4xl mx-auto">
                         {screens[activeScreen]}
                     </div>
-                    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around shadow-t-md">
+                    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex overflow-x-auto shadow-t-md scrollbar-hide">
                         {navItems.map(item => (
                             <button 
                                 key={item.id} 
                                 onClick={() => handleNavigate(item.id)} 
-                                className={`flex-1 flex flex-col items-center justify-center p-2 text-xs transition-colors ${activeScreen === item.id ? 'text-blue-700 bg-gray-100' : 'text-gray-500'}`}>
-                                <span className="text-xl">{item.icon}</span>
-                                <span>{item.label}</span>
+                                className={`flex-none w-[72px] flex flex-col items-center justify-center py-3 px-1 text-[10px] transition-colors ${activeScreen === item.id ? 'text-blue-700 bg-blue-50 border-t-2 border-blue-700' : 'text-gray-500 border-t-2 border-transparent hover:bg-gray-50'}`}>
+                                <span className="text-xl mb-1">{item.icon}</span>
+                                <span className="truncate w-full text-center">{item.label}</span>
                             </button>
                         ))}
                     </nav>
